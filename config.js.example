@@ -1,0 +1,12 @@
+var config = {}
+
+// Mapbox
+config.mapbox = {};
+config.mapbox.account = 'name';
+config.mapbox.access_token = 'key';
+
+// Network
+config.web = {};
+config.web.port = process.env.PORT || 3000;
+
+module.exports = config;

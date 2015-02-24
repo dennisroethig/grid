@@ -1,6 +1,19 @@
+var config = require('./config');
 var express = require('express');
 var Canvas = require('canvas');
+
+var fs = require('fs');
+var L = require('leaflet-headless');
+var leafletImage = require('leaflet-image');
+
 var app = express();
+
+// create an element for the map.
+var element = document.createElement('div');
+element.id = 'map';
+document.body.appendChild(element);
+var map = L.map('map').setView([0, 0], 2);
+var mapbox = 'http://api.tiles.mapbox.com/v4/' + config.mapbox.account + '/{z}/{x}/{y}.png?access_token=' + config.mapbox.access_token;
 
 app.use(express.static(__dirname + '/public'));
 
@@ -25,7 +38,6 @@ app.get('/', function(req,res) {
     });
 });
 
-
 app.get('/map.png', function(req, res) {
     var z = 100;
     var x = 222;
@@ -49,7 +61,20 @@ app.get('/map.png', function(req, res) {
     stream.pipe(res);
 });
 
-app.listen(process.env.PORT || 8000, function(err) {
+app.get('/leaflet.png', function(req, res) {
+
+    L.tileLayer(mapbox, {}).addTo(map);
+
+    leafletImage(map, function (err, canvas) {
+        var stream = canvas.createPNGStream();
+        res.type("png");
+        stream.pipe(res);
+    });
+
+
+});
+
+app.listen(config.web.port, function(err) {
     if (err) throw err
-    console.log('Listening on 8000...');
+    console.log('Listening on ' + config.web.port + '...');
 });
